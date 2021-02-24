@@ -74,3 +74,73 @@ enum {MA,MB,MC,MD} State, NextState;
     end
 endmodule
 
+module MemIntThread (input logic resetN, clock, start, read, inout logic dataValid, input logic [7:0]address, inout logic [7:0] data);
+  logic [7:0]Mem[16'hFFFF:0],MemData;
+  logic ld_AddrUp, ld_AddrLo, memDataAvail=0, en_Data, ld_Data, dv;
+  logic [7:0] DataReg;
+  logic [15:0]AddrReg;
+  enum {SA,SB,SC,SC} State, NextState;
+  
+  initial
+    begin
+      for(int i=0; i<=16'hFFFF;i++)
+        Mem[i]=i[7:0];
+    end
+  assign data =(en_Data)? MemData:'bz;
+  assign dataValid =(State==SC)? dv:1'bz;
+  always@(AddrReg, ld_Data)
+    MemData=Mem[AddrReg];
+  always_ff@(posedge clock)
+    if(ld_AddrUp) 
+      AddrReg[15:8]<=address;
+    always_ff@(posedge clock)
+      if(ld_AddrLo) 
+        AddrReg[7:0]<=address;
+  always@(posedge clock)
+    begin
+      if(ld_data)
+        begin
+          DataReg<=data;
+          Mem[AddrReg]<=data;
+        end
+    end
+  always_ff@(posedge clock, negedge resetN)
+    if(~resetN) 
+      State<=SA;
+    else 
+      State<=NextState;
+  always_comb 
+    begin
+      ld_AddrUp=0;
+      ld_AddrLo=0;
+      dv=0;
+      en_Data=0;
+      ld_Data=0;
+      case(State)
+          SA:
+            begin
+              NextState=(start)?SB:SA;
+              ld_AddrUp=(start)?1:0;
+            end
+          SB:
+            begin
+              NextState=(read)?SC:SD;
+              ld_AddrLo=1;
+            end
+          SC:
+            begin
+              NextState=(memDataAvail)?SA:SC;
+              dv=(memDataAvail)?1:0;
+              en_Data=(memDataAvail)?1:0;
+            end
+          SD:
+            begin
+              NextState=(dataValid)?SA:SD;
+              ld_Data=(dataValid)?1:0;
+            end
+      endcase
+    end
+endmodule
+    
+    
+
