@@ -1,7 +1,7 @@
 module top;
 logic clock=1, resetN=0;
 tri dataValid, start, read;
-tri [7:0] data address;
+tri [7:0] data, address;
 
 always #5 clock = ~clock;
 
@@ -15,7 +15,7 @@ endmodule: top
 module ProcIntThread (input  logic resetN, clock, output logic start,  read, inout  logic dataValid, output logic [7:0] address, inout  logic [7:0] data);
 logic en_AddrUp, en_AddrLo, ld_Data, en_Data, access=0,doRead, wDataRdy, dv;
 logic [7:0]DataReg;
-logic [7:0]AddrReg;
+logic [15:0]AddrReg;
   
 enum {MA,MB,MC,MD} State, NextState;
   assign data = (en_Data)? DataReg: 'bz;
