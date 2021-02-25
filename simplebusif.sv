@@ -38,12 +38,7 @@ endinterface
   
 endpackage
 
-module ProcessorIntThread(
-    input logic resetN, clock,
-    output logic start, read,
-    inout logic dataValid,
-    output logic [7:0] address,
-    inout logic [7:0] data);
+module ProcessorIntThread(simplebus bus);
 
 logic en_AddrUp, en_AddrLo, ld_Data, en_Data, access = 0;
 logic doRead, wDataRdy, dv;
@@ -52,28 +47,28 @@ logic [15:0] AddrReg;
 
 enum {MA,MB,MC,MD} State, NextState;
 
-assign data = (en_Data) ? DataReg : 'bz;
-assign dataValid = (State == MD) ? dv : 1'bz;
+assign bus.data = (en_Data) ? DataReg : 'bz;
+assign bus.dataValid = (State == MD) ? dv : 1'bz;
 
 always_comb
-    if (en_AddrLo) address = AddrReg[7:0];
-    else if (en_AddrUp) address = AddrReg[15:8];
-    else address = 'bz;
+    if (en_AddrLo) bus.address = AddrReg[7:0];
+    else if (en_AddrUp) bus.address = AddrReg[15:8];
+    else bus.address = 'bz;
     
-always_ff @(posedge clock)
+always_ff @(posedge bus.clock)
     if (ld_Data) DataReg <= data;
     
-always_ff @(posedge clock, negedge resetN)
-    if (!resetN) State <= MA;
+always_ff @(posedge bus.clock, negedge bus.resetN)
+    if (!bus.resetN) State <= MA;
     else State <= NextState;
     
     
 always_comb
     begin
-    start = 0;
+    bus.start = 0;
     en_AddrUp = 0;
     en_AddrLo = 0;
-    read = 0;
+    bus.read = 0;
     ld_Data = 0;
     en_Data = 0;
     dv = 0;
@@ -81,13 +76,13 @@ always_comb
     case(State)
     MA:	begin
     	NextState = (access) ? MB : MA;
-    	start = (access) ? 1 : 0;
+    	bus.start = (access) ? 1 : 0;
     	en_AddrUp = (access) ? 1 : 0;
     	end
     MB:	begin
     	NextState = (doRead) ? MC : MD;
     	en_AddrLo = 1;
-    	read = (doRead) ? 1 : 0;
+    	bus.read = (doRead) ? 1 : 0;
     	end
     MC:	begin
     	NextState = (dataValid) ? MA : MC;
@@ -108,12 +103,7 @@ endmodule
 
 
 
-module MemoryIntThread(
-    input logic resetN, clock,
-    input logic start, read,
-    inout logic dataValid,
-    input logic [7:0] address,
-    inout logic [7:0] data);
+module MemoryIntThread(simplebus bus);
     
 logic [7:0] Mem[16'hFFFF:0], MemData;
 logic ld_AddrUp, ld_AddrLo, memDataAvail = 0;
@@ -131,30 +121,30 @@ initial
     end
 
     
-assign data = (en_Data) ? MemData : 'bz;
-assign dataValid = (State == SC) ? dv : 1'bz;
+assign bus.data = (en_Data) ? MemData : 'bz;
+assign bus.dataValid = (State == SC) ? dv : 1'bz;
 
 
 always @(AddrReg, ld_Data)
     MemData = Mem[AddrReg];
     
-always_ff @(posedge clock)
-    if (ld_AddrUp) AddrReg[15:8] <= address;
+always_ff @(posedge bus.clock)
+    if (ld_AddrUp) AddrReg[15:8] <= bus.address;
     
-always_ff @(posedge clock)
-    if (ld_AddrLo) AddrReg[7:0] <= address;
+always_ff @(posedge bus.clock)
+  if (ld_AddrLo) AddrReg[7:0] <= bus.address;
 
-always @(posedge clock)
+always @(posedge bus.clock)
     begin
     if (ld_Data)
         begin
-        DataReg <= data;
-        Mem[AddrReg] <= data;
+        DataReg <= bus.data;
+        Mem[AddrReg] <= bus.data;
         end
     end
     
-always_ff @(posedge clock, negedge resetN)
-  if (!resetN) State <= SA;
+always_ff @(posedge bus.clock, negedge bus.resetN)
+  if (!bus.resetN) State <= SA;
   else State <= NextState;
   
 always_comb
@@ -167,11 +157,11 @@ always_comb
     
     case (State)
     SA: begin
-    	NextState = (start) ? SB : SA;
-    	ld_AddrUp = (start) ? 1 : 0;
+      NextState = (bus.start) ? SB : SA;
+      ld_AddrUp = (bus.start) ? 1 : 0;
     	end
     SB: begin
-    	NextState = (read) ? SC : SD;
+      NextState = (bus.read) ? SC : SD;
     	ld_AddrLo = 1;
     	end
     SC: begin
@@ -180,8 +170,8 @@ always_comb
     	en_Data = (memDataAvail) ? 1 : 0;
     	end
     SD: begin
-    	NextState = (dataValid) ? SA: SD;
-    	ld_Data = (dataValid) ? 1 : 0;
+      NextState = (bus.dataValid) ? SA: SD;
+      ld_Data = (bus.dataValid) ? 1 : 0;
     	end
     endcase
     end
