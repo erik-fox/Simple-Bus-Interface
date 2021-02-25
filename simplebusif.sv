@@ -215,6 +215,18 @@ always_comb
     endcase
     end
     
-
+// *** testbench code
+ always @(State)
+    begin
+    bit [2:0] delay;
+    memDataAvail <= 0;
+    if (State == SC)
+    	begin
+    	delay = $random;
+    	repeat (2 + delay)
+    		@(posedge clock);
+    	memDataAvail <= 1;
+    	end
+    end
 endmodule
 
