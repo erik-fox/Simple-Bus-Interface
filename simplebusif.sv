@@ -134,7 +134,6 @@ ReadMem(16'h0407);
 $finish;
 end
     
-endmodule
 
 endmodule
 
@@ -224,7 +223,7 @@ always_comb
     	begin
     	delay = $random;
     	repeat (2 + delay)
-    		@(posedge clock);
+    		@(posedge bus.clock);
     	memDataAvail <= 1;
     	end
     end
