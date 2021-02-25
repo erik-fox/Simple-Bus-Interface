@@ -1,22 +1,4 @@
-module top;
-
-logic clock = 1;
-logic resetN = 0;
-import simplebus::*;
-  
-bus procmemif(clock,resetN);
-
-always #5 clock = ~clock;
-
-initial #2 resetN = 1;
-
-  ProcessorIntThread P(procmemif.leader);
-  MemoryIntThread M(procmemif.follower);
-
-endmodule
-
-package simplebus;
-interface bus(input logic clock, resetN)
+interface simplebus (input logic clock, resetN);
   tri dataValid, start, read;
   tri [7:0] data, address; 
  
@@ -33,10 +15,25 @@ interface bus(input logic clock, resetN)
                     input read,
                     inout dataValid,
                     input address,
-                    inout data));
+                    inout data);
 endinterface
   
-endpackage
+module top;
+
+logic clock = 1;
+logic resetN = 0;
+  
+simplebus procmemif(clock,resetN);
+
+always #5 clock = ~clock;
+
+initial #2 resetN = 1;
+
+  ProcessorIntThread P(procmemif.leader);
+  MemoryIntThread M(procmemif.follower);
+
+endmodule
+
 
 module ProcessorIntThread(simplebus bus);
 
@@ -56,7 +53,7 @@ always_comb
     else bus.address = 'bz;
     
 always_ff @(posedge bus.clock)
-    if (ld_Data) DataReg <= data;
+    if (ld_Data) DataReg <= bus.data;
     
 always_ff @(posedge bus.clock, negedge bus.resetN)
     if (!bus.resetN) State <= MA;
@@ -85,8 +82,8 @@ always_comb
     	bus.read = (doRead) ? 1 : 0;
     	end
     MC:	begin
-    	NextState = (dataValid) ? MA : MC;
-    	ld_Data = (dataValid) ? 1 : 0;
+    	NextState = (bus.dataValid) ? MA : MC;
+    	ld_Data = (bus.dataValid) ? 1 : 0;
     	end
     MD:	begin
     	NextState = (wDataRdy) ? MA : MD;
