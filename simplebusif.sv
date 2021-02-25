@@ -30,8 +30,11 @@ simplebus procmemif(clock,resetN);
 
 always #5 clock = ~clock;
 
-initial #2 resetN = 1;
-
+initial
+ begin
+   $dumpfile("dump.vcd"); $dumpvars;
+  #2 resetN = 1;
+end
   ProcessorIntThread P(procmemif.leader);
   MemoryIntThread M(procmemif.follower);
 
