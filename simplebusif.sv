@@ -100,10 +100,10 @@ doRead <= 0;
 wDataRdy <= 1;
 AddrReg <= Avalue;
 DataReg <= Dvalue;
-@(posedge clock) access <= 0;
-@(posedge clock);
+@(posedge bus.clock) access <= 0;
+@(posedge bus.clock);
 wait (State == MA); 
-repeat (2) @(posedge clock);
+repeat (2) @(posedge bus.clock);
 end
 endtask
 
@@ -114,10 +114,10 @@ access <= 1;
 doRead <= 1;
 wDataRdy <= 0;
 AddrReg <= Avalue;
-@(posedge clock) access <= 0;
-@(posedge clock);
+  @(posedge bus.clock) access <= 0;
+  @(posedge bus.clock);
 wait (State == MA); 
-repeat (2) @(posedge clock);
+  repeat (2) @(posedge bus.clock);
 end
 endtask
 
