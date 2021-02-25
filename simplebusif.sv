@@ -1,13 +1,16 @@
 interface simplebus (input logic clock, resetN);
-  tri dataValid, start, read;
-  tri [7:0] data, address; 
+  tri dataValid;
+logic start;
+logic read;
+  tri [7:0] data;
+  logic [7:0] address; 
  
   modport leader (input resetN, 
                   input clock, 
                   output start, 
                   output read,
                   inout dataValid,
-                  output address,
+                  output  address,
                   inout  data);
   modport follower (input resetN, 
                     input clock,
