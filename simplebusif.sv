@@ -92,7 +92,49 @@ always_comb
     	end
     endcase
     end
+
+task WriteMem(input [15:0] Avalue, input [7:0] Dvalue);   
+begin
+access <= 1;
+doRead <= 0;
+wDataRdy <= 1;
+AddrReg <= Avalue;
+DataReg <= Dvalue;
+@(posedge clock) access <= 0;
+@(posedge clock);
+wait (State == MA); 
+repeat (2) @(posedge clock);
+end
+endtask
+
+
+task ReadMem(input [15:0] Avalue);   
+begin
+access <= 1;
+doRead <= 1;
+wDataRdy <= 0;
+AddrReg <= Avalue;
+@(posedge clock) access <= 0;
+@(posedge clock);
+wait (State == MA); 
+repeat (2) @(posedge clock);
+end
+endtask
+
+
+initial
+begin
+repeat (2) @(posedge bus.clock);
+// Note this is from the textbook but is *not* a good test!!
+WriteMem(16'h0406, 8'hDC);
+ReadMem(16'h0406);
+WriteMem(16'h0407, 8'hAB);
+ReadMem(16'h0406);
+ReadMem(16'h0407);
+$finish;
+end
     
+endmodule
 
 endmodule
 
