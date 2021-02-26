@@ -133,10 +133,11 @@ begin
 repeat (2) @(posedge bus.clock);
 // Note this is from the textbook but is *not* a good test!!
 WriteMem(16'h0406, 8'hDC);
-ReadMem(16'h0406);
 WriteMem(16'h0407, 8'hAB);
 ReadMem(16'h0406);
 ReadMem(16'h0407);
+WriteMem(16'h0406, 8'hF1);
+ReadMem(16'h0406);
 $finish;
 end
     
