@@ -36,7 +36,7 @@ initial
   #2 resetN = 1;
 end
   ProcessorIntThread P(procmemif.leader);
-  MemoryIntThread M(procmemif.follower);
+MemoryIntThread #(1)M(procmemif.follower);
 
 endmodule
 
