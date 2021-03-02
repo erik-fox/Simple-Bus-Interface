@@ -22,7 +22,7 @@ logic read;
 endinterface
   
 module top;
-parameter N=1;
+parameter logic [7:0] N=1;
 logic clock = 1;
 logic resetN = 0;
   
