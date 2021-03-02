@@ -178,7 +178,7 @@ assign bus.dataValid = (State == FOUR) ? dv : 1'bz;
 
 
 always @(AddrReg, ld_Data)
-    MemData = Mem[AddrReg];
+	MemData = Mem[AddrReg[15:0]];
     
 always_ff @(posedge bus.clock)
     if (ld_AddrUp) AddrReg[23:16] <= bus.address;
@@ -193,7 +193,7 @@ always @(posedge bus.clock)
     if (ld_Data)
         begin
         DataReg <= bus.data;
-        Mem[AddrReg] <= bus.data;
+		Mem[AddrReg[15:0]] <= bus.data;
         end
     end
     
