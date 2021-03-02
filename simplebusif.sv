@@ -22,7 +22,7 @@ logic read;
 endinterface
   
 module top;
-
+parameter N=1;
 logic clock = 1;
 logic resetN = 0;
   
@@ -36,8 +36,11 @@ initial
   #2 resetN = 1;
 end
   ProcessorIntThread P(procmemif.leader);
-MemoryIntThread #(1)M(procmemif.follower);
-
+genvar i;
+generate
+ for(i=0; i<N; i++)
+	MemoryIntThread #(i) M(procmemif.follower);
+endgenerate
 endmodule
 
 
@@ -169,7 +172,7 @@ enum {ONE, TWO, THREE, FOUR,FIVE} State, NextState;
 initial
     begin
     for (int i = 0; i < 16'hFFFF; i++)
-        Mem[i] <= 0;
+        Mem[i] <= N;
     end
 
     
