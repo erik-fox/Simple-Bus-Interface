@@ -33,7 +33,8 @@ always #5 clock = ~clock;
 initial
  begin
    $dumpfile("dump.vcd"); $dumpvars;
-  #2 resetN = 1;
+	$monitor("procmemif.dataValid = %h, procmemif.start = %h, procmemif.read = %h,procmemif.data = %h, procmemif.address = %h",procmemif.dataValid, procmemif.start, procmemif.read,procmemif.data, procmemif.address);
+ #2 resetN = 1;
 end
   ProcessorIntThread P(procmemif.leader);
 genvar i;
@@ -143,11 +144,11 @@ begin
 repeat (2) @(posedge bus.clock);
 // Note this is from the textbook but is *not* a good test!!
 WriteMem(24'h010406, 8'hDC);
-WriteMem(24'h010407, 8'hAB);
+WriteMem(24'h020407, 8'hAB);
 ReadMem(24'h010406);
-ReadMem(24'h010407);
-WriteMem(24'h010406, 8'hF1);
-ReadMem(24'h010406);
+ReadMem(24'h020407);
+WriteMem(24'h020406, 8'hF1);
+ReadMem(24'h020406);
 $finish;
 end
     
