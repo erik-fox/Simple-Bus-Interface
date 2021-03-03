@@ -2,3 +2,4 @@ ECE571 - HW 6 Simple bus interface: Processor with multiple memory modules possi
 %vlog simplebusif.sv 
 %vsim -c -gN=(Number of desired memory modules) top 
 %run -all
+For my test vectors, you need at least three memory modules.
