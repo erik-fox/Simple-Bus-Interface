@@ -1,7 +1,7 @@
 interface simplebus (input logic clock, resetN);
   tri dataValid;
-logic start;
-logic read;
+  logic start;
+  logic read;
   tri [7:0] data;
   logic [7:0] address; 
  
