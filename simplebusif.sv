@@ -147,8 +147,8 @@ WriteMem(24'h010406, 8'hDC);
 WriteMem(24'h020407, 8'hAB);
 ReadMem(24'h010406);
 ReadMem(24'h020407);
-WriteMem(24'h020406, 8'hF1);
-ReadMem(24'h020406);
+WriteMem(24'h020407, 8'hF1);
+ReadMem(24'h020407);
 $finish;
 end
     
